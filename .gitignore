@@ -9,7 +9,7 @@ prueba.cpp
 *.
 # Ignorar cualquier ejecutable sin extensión (solo si es seguro para ti)
 # Esto ignora cualquier archivo sin punto (sin extensión) que esté en el root
-#/*
+/*
 
 # Pero permite carpetas y archivos con extensión
 !*.h
