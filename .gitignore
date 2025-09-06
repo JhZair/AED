@@ -1,0 +1,19 @@
+# Ignorar ejecutables sin extensión (común en Linux/macOS)
+# Asume que tus ejecutables no tienen extensión y están en la raíz o subcarpetas
+*.out
+*.exe
+*.bin
+a.out
+prueba.cpp
+# Ignorar archivos sin extensión (útil pero puede ignorar archivos no ejecutables también)
+*.
+# Ignorar cualquier ejecutable sin extensión (solo si es seguro para ti)
+# Esto ignora cualquier archivo sin punto (sin extensión) que esté en el root
+#/*
+
+# Pero permite carpetas y archivos con extensión
+!*.h
+!*.md
+!*.cpp
+!*/
+/exec
