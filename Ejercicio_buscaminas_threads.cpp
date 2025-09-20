@@ -1,150 +1,125 @@
 #include <iostream>
-#include <string>
-#include <cstring>
 #include <vector>
+#include <string>
+#include <random>
+#include <ctime>
+#include <cmath>
 #include <thread>
+
 using namespace std;
 
-struct BuscaminasThreads {
-    char tablero_sol[10][10];
-    char tablero_juego[10][10];
-    bool juego_terminado;
-    bool victoria;
-    int casillas_restantes;
+struct Buscaminas {
+    char _tablero[10][10];
 
-    void rellenar_tablero(char* p_inicio, int num_casillas) {
-        char* p_fin = p_inicio + num_casillas;
+    void limpiar_tablero() {
+        char* p_inicio = &_tablero[0][0];
+        char* p_fin = p_inicio + 100;
         while (p_inicio < p_fin) {
-            *p_inicio = '#';
+            *p_inicio = '0';
             p_inicio++;
         }
     }
 
-    void iniciar_juego() {
-        char solucion[10][10] = {
-            {'1', '1', '1', '0', '0', '0', '0', '1', '1', '1'},
-            {'*', '2', '*', '1', '0', '0', '0', '1', '*', '1'},
-            {'2', '3', '2', '1', '0', '0', '0', '1', '1', '1'},
-            {'1', '*', '1', '0', '0', '0', '0', '0', '0', '0'},
-            {'1', '1', '1', '0', '0', '1', '1', '1', '0', '0'},
-            {'0', '0', '1', '1', '1', '*', '1', '1', '*', '1'},
-            {'0', '0', '1', '*', '2', '2', '2', '2', '2', '1'},
-            {'0', '1', '2', '2', '1', '0', '0', '1', '*', '1'},
-            {'0', '1', '*', '1', '0', '0', '0', '1', '1', '1'},
-            {'0', '1', '1', '1', '0', '0', '0', '0', '0', '0'}
-        };
-        
-        memcpy(tablero_sol, solucion, 10*10);
-        juego_terminado = false;
-        victoria = false;
-        casillas_restantes = 10*10 - 10;
-        
-        vector<thread> hilos;
-        char* p_inicio_tablero = &tablero_juego[0][0];
-        int casillas_por_hilo = (10 * 10) / 4;
-
-        for (int i = 0; i < 4; i++) {
-            char* p_inicio_seccion = p_inicio_tablero + (i*casillas_por_hilo);
-            hilos.push_back(thread(&BuscaminasThreads::rellenar_tablero, this, p_inicio_seccion, casillas_por_hilo));
+    void colocar_minas(int num_minas) {
+        if (num_minas >= 100) {
+            num_minas = 99;
         }
-
-        for (int i = 0; i < 4; i++) {
-            hilos[i].join();
-        }
-    }
-
-    void mostrar_tablero() {
-        cout << "\n  ";
-        for (int i = 0; i < 10; i++) cout << i << " ";
-        cout << "\n-----------------------\n";
-        for (int i = 0; i < 10; i++) {
-            cout << i << "|";
-            char* p_fila = tablero_juego[i];
-            for (int j = 0; j < 10; j++) {
-                cout << *(p_fila + j) << " ";
+        srand(time(0));
+        int minas_colocadas = 0;
+        while (minas_colocadas < num_minas) {
+            int pos = rand() % 100;
+            char* p_casilla = &_tablero[0][0] + pos;
+            if (*p_casilla != '*') {
+                *p_casilla = '*';
+                minas_colocadas++;
             }
-            cout << "|\n";   
         }
-        cout << "-----------------------\n";
     }
 
-    void descubrir_casilla(int fila, int col) {
-        if (fila<0||fila>= 10||col<0||col>= 10) return;
+    void calcular_hilos(int fila_inicio, int fila_fin) {
+        char (*p_fila)[10] = _tablero + fila_inicio;
+        char (*p_fin_seccion)[10] = _tablero + fila_fin;
 
-        char* p_juego = &tablero_juego[0][0]+(fila*10 + col);      
-        
-        if (*p_juego != '#') return;
+        for (; p_fila < p_fin_seccion; ++p_fila) {
+            char* p_casilla = *p_fila;
+            char* p_fin_fila = *p_fila + 10;
+            for (; p_casilla < p_fin_fila; ++p_casilla) {
+                if (*p_casilla == '*') {
+                    continue;
+                }
 
-        char* p_solucion = &tablero_sol[0][0]+(fila*10 + col);
-        *p_juego = *p_solucion;
-        
-        casillas_restantes--;
+                int conteo = 0;
+                int offsets[] = {-11, -10, -9, -1, 1, 9, 10, 11};
+                
+                long pos_actual = p_casilla - &_tablero[0][0];
+                int col_actual = pos_actual % 10;
 
-        if (*p_juego == '*') {
-            juego_terminado = true;
-            victoria = false;
-            return;
-        }
-        if (*p_juego == '0') {
-            *p_juego = ' ';
-            for (int df = -1; df <= 1; df++) {
-                for (int dc = -1; dc <= 1; dc++) {
-                    descubrir_casilla(fila + df, col + dc);
+                for (int i = 0; i < 8; ++i) {
+                    int offset = offsets[i];
+                    char* p_vecino = p_casilla + offset;
+                    long pos_vecino = p_vecino - &_tablero[0][0];
+
+                    if (pos_vecino >= 0 && pos_vecino < 100) {
+                        int col_vecino = pos_vecino % 10;
+                        if (abs(col_actual - col_vecino) > 1) {
+                            continue;
+                        }
+                        if (*p_vecino == '*') {
+                            conteo++;
+                        }
+                    }
+                }
+                
+                if (conteo > 0) {
+                    *p_casilla = conteo + '0';
                 }
             }
         }
     }
 
-    void jugar() {
-        iniciar_juego();
-        while (!juego_terminado) {
-            mostrar_tablero();
-            cout << "Ingresa tu jugada (r para revelar y b para bandera): ";
-            char accion;
-            int fila, col;
-            cin >> accion >> fila >> col;
+    void generar(int num_minas) {
+        limpiar_tablero();
+        colocar_minas(num_minas);
+        
+        vector<thread> hilos;
+        hilos.push_back(thread(&Buscaminas::calcular_hilos, this, 0, 2));
+        hilos.push_back(thread(&Buscaminas::calcular_hilos, this, 2, 4));
+        hilos.push_back(thread(&Buscaminas::calcular_hilos, this, 4, 7));
+        hilos.push_back(thread(&Buscaminas::calcular_hilos, this, 7, 10));
 
-            if (cin.fail() || (accion != 'r' && accion != 'b')) {
-                cout << "Entrada invalida\n";
-                cin.clear();
-                cin.ignore(10000, '\n');
-                continue;
-            }
-
-            if (fila < 0 || fila >= 10 || col < 0 || col >= 10) {
-                 cout << "Coordenadas fuera del tablero.\n";
-                 continue;
-            }
-            char* p_casilla_juego = &tablero_juego[0][0] + (fila * 10 + col);
-
-            if (accion == 'r') {
-                descubrir_casilla(fila, col);
-            } else if (accion == 'b') {
-                if (*p_casilla_juego == '#') *p_casilla_juego = 'B';
-                else if (*p_casilla_juego == 'B') *p_casilla_juego = '#';
-            }
-
-            if (casillas_restantes == 0 && !juego_terminado) {
-                juego_terminado = true;
-                victoria = true;
-            }
+        for (int i = 0; i < hilos.size(); ++i) {
+            hilos[i].join();
         }
+    }
 
+    void mostrar_tablero() {
         for (int i = 0; i < 10; i++) {
-           memcpy(tablero_juego[i], tablero_sol[i], 10);
-        }
-        mostrar_tablero();
-
-        if (victoria) {
-            cout << "Ganaste!\n";
-        } else {
-            cout << "Perdiste\n";
+            for (int j = 0; j < 10; j++) {
+                if (_tablero[i][j] == '0') {
+                    cout << ". ";
+                } else {
+                    cout << _tablero[i][j] << " ";
+                }
+            }
+            cout << endl;
         }
     }
 };
 
 int main() {
-    BuscaminasThreads juego;
-    juego.jugar();
+    Buscaminas juego;
+    int num_minas = 0;
+
+    cout << "Ingrese el numero de minas a colocar: ";
+    cin >> num_minas;
+
+    if (cin.fail() || num_minas <= 0) {
+        cout << "Numero invalido" << endl;
+        num_minas = 10;
+    }
+
+    juego.generar(num_minas);
+    juego.mostrar_tablero();
+
     return 0;
 }
