@@ -17,3 +17,4 @@ prueba.cpp
 !*.cpp
 !*/
 /exec
+/.vscode
