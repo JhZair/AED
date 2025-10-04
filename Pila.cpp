@@ -1,44 +1,50 @@
 #include <iostream>
-
 using namespace std;
 
 template<typename T>
 class Pila {
 private:
-    T A[10];
+    T* A;
     T* top;
+    T* A_fin;
 
 public:
-    Pila() {
+    Pila(int n = 10) {
+        A = new T[n];
         top = nullptr;
+        A_fin = A + n;
     }
 
-    bool vacio() {
-        return !top;
+    ~Pila() {
+        delete[] A;
     }
 
-    bool lleno() {
-        return top == A + 9;
+    bool vacio() const {
+        return top == nullptr;
     }
 
-    bool push(T a) {
+    bool lleno() const {
+        return top == A_fin - 1;
+    }
+
+    bool Push(const T& dato) {
         if (lleno()) {
             return false;
         }
-        if (!top) {
+        if (vacio()) {
             top = A;
         } else {
             top++;
         }
-        *top = a;
+        *top = dato;
         return true;
     }
 
-    bool pop(T& a) {
+    bool Pop(T& dato) {
         if (vacio()) {
             return false;
         }
-        a = *top;
+        dato = *top;
         if (top == A) {
             top = nullptr;
         } else {
@@ -47,42 +53,58 @@ public:
         return true;
     }
 
-    void imprimir() {
+    void imprimir() const {
         if (vacio()) {
-            cout << "Pila vacia" << endl;
+            cout << "(vacia)";
         } else {
             for (T* ptr = A; ptr <= top; ptr++) {
                 cout << *ptr << " ";
             }
-            cout << endl;
         }
+        cout << endl;
     }
 };
 
 int main() {
-    Pila<int> pila;
+    Pila<int> miPila(5);
 
-    pila.imprimir();
+    cout << "Estado inicial de la pila: ";
+    miPila.imprimir();
 
-    pila.push(5);
-    pila.push(10);
-    pila.push(15);
-    cout << "Estado inicial de pila: ";
-    pila.imprimir();
+    miPila.Push(5);
+    miPila.Push(10);
+    miPila.Push(15);
 
-    int vlr_sacado;
-    if (pila.pop(vlr_sacado)) cout << "Pop: " << vlr_sacado << endl;
+    miPila.imprimir();
+
+    int valor_sacado;
+    if (miPila.Pop(valor_sacado)) {
+        cout << "Pop de Pila: " << valor_sacado << endl;
+    } else {
+        cout << "Pila vacia" << endl;
+    }
+
+    miPila.imprimir();
     
-    pila.imprimir();
+    miPila.Push(20);
+    miPila.Push(25);
+    
+    miPila.imprimir();
+    
+    if (miPila.lleno()){
+        cout << "La pila esta llena." << endl;
+    }
 
-    if (pila.pop(vlr_sacado)) cout << "Pop de Pila: " << vlr_sacado << endl;
+    if (!miPila.Push(99)){
+        cout << "No se pudo agregar 99, la pila esta llena." << endl;
+    }
 
-
-    if (pila.pop(vlr_sacado)) cout << "Pop de Pila: " << vlr_sacado << endl;
-
+    while(miPila.Pop(valor_sacado)){
+         cout << "Pop de Pila: " << valor_sacado << endl;
+    }
 
     cout << "Estado final de la pila: ";
-    pila.imprimir();
+    miPila.imprimir();
 
     return 0;
 }

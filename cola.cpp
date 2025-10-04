@@ -5,134 +5,103 @@ template<typename T>
 class Cola {
 private:
     T* A;
-    int* frente;
-    int* final;
-    static const int tamañoarreglo = 10;
+    T* inicio;
+    T* fin;
+    T* A_fin;
 
 public:
-    Cola() {
-        A = new T[tamañoarreglo];
-        frente = new int(0);
-        final = new int(0);
+    Cola(int n = 10) {
+        A = new T[n + 1];
+        inicio = A;
+        fin = A;
+        A_fin = A + n + 1;
     }
 
-    ~Cola() {
-        delete[] A;
-        delete frente;
-        delete final;
+    ~Cola() { delete[] A; }
+
+    bool vacio() const {
+        return inicio == fin;
     }
 
-    bool vacio() {
-        return *frente == *final;
+    bool lleno() const {
+        return (fin + 1 == A_fin ? A : fin + 1) == inicio;
     }
 
-    bool lleno() {
-        return (*final + 1) % tamañoarreglo == *frente;
-    }
-
-    bool Push(const T& a) {
+    bool Push(const T& dato) {
         if (lleno()) return false;
-        A[*final] = a;
-        *final = (*final + 1) % tamañoarreglo;
+        *fin = dato;
+        fin = (fin + 1 == A_fin) ? A : fin + 1;
         return true;
     }
 
-    bool Pop(T& a) {
+    bool Pop(T& dato) {
         if (vacio()) return false;
-        a = A[*frente];
-        *frente = (*frente + 1) % tamañoarreglo;
+        dato = *inicio;
+        inicio = (inicio + 1 == A_fin) ? A : inicio + 1;
         return true;
     }
 
-    void imprimir() {
-        int i = *frente;
-        while (i != *final) {
-            cout << A[i] << " ";
-            i = (i + 1) % tamañoarreglo;
+    void imprimir() const {
+        if (vacio()){
+            cout << "(vacia)";
+        }
+        const T* i = inicio;
+        while (i != fin) {
+            cout << *i << " ";
+            i = (i + 1 == A_fin) ? A : i + 1;
         }
         cout << endl;
-    }
-
-    int getFrente() {
-        return *frente;
-    }
-
-    int getFinal() {
-        return *final;
-    }
-};
-
-template<typename T>
-struct Pila {
-    T A[10];
-    T* top = nullptr;
-
-    bool vacio() {
-        return !top;
-    }
-
-    bool lleno() {
-        return top == A + 9;
-    }
-
-    bool Push(const T& a) {
-        if (lleno()) return false;
-        if (!top) top = A;
-        else top++;
-        *top = a;
-        return true;
-    }
-
-    bool Pop(T& a) {
-        if (vacio()) return false;
-        a = *top;
-        top--;
-        if (top < A) top = nullptr;
-        return true;
-    }
-
-    void imprimir() {
-        if (vacio()) {
-            cout << "Pila vacia" << endl;
-        } else {
-            for (T* ptr = A; ptr <= top; ptr++) {
-                cout << *ptr << " ";
-            }
-            cout << endl;
-        }
     }
 };
 
 int main() {
-    using namespace std;
+    Cola<int> miCola(5);
 
-    Cola<int> c;
-    c.Push(7);
-    c.Push(2);
-    c.Push(1);
-    cout << "Estado inicial de cola: ";
-    c.imprimir();
-    if(c.Push(8)) cout << "Push(8): " << endl;
-    c.imprimir();
+    cout << "Estado inicial de la cola: ";
+    miCola.imprimir();
 
-    int y;
-    if (c.Pop(y)) cout << "Pop(" << y << ")"<< endl;
-    c.imprimir();
+    miCola.Push(10);
+    miCola.Push(20);
+    miCola.Push(30);
 
-    cout << "Frente: " << c.getFrente() << ", Final: " << c.getFinal() << endl;
+    miCola.imprimir();
 
-    cout << endl;
+    int valor_sacado;
+    if (miCola.Pop(valor_sacado)) {
+        cout << "Pop de Cola: " << valor_sacado << endl;
+    } else {
+        cout << "Cola vacia" << endl;
+    }
 
-    Pila<int> p;
-    p.Push(5);
-    p.Push(10);
-    p.Push(15);
-    cout << "Estado inicial de pila: ";
-    p.imprimir();
+    miCola.imprimir();
 
-    int x;
-    if (p.Pop(x)) cout << "Pop(" << x << ")"<< endl;
-    p.imprimir();
+    miCola.Push(40);
+    miCola.Push(50);
+
+    miCola.imprimir();
+
+    if (miCola.Pop(valor_sacado)) {
+        cout << "Pop de Cola: " << valor_sacado << endl;
+    }
+    
+    miCola.Push(60);
+    cout << "Cola: ";
+    miCola.imprimir();
+
+    if (miCola.lleno()){
+        cout << "La cola esta llena." << endl;
+    }
+
+    if (!miCola.Push(99)){
+        cout << "No se pudo agregar 99, la cola esta llena." << endl;
+    }
+
+    while(miCola.Pop(valor_sacado)){
+         cout << "Pop de Cola: " << valor_sacado << endl;
+    }
+
+    cout << "Estado final de la cola: ";
+    miCola.imprimir();
 
     return 0;
 }
