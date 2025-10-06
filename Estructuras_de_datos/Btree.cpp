@@ -35,10 +35,10 @@ bool Btree::fnd(int x, Node**& p){
 	p = &root;
 	while(*p && (*p)->v != x){
 		if((*p)->v < x){
-			p = &((*p)->left));
+			p = &((*p)->left);
 		}
 		else{
-			p = &((*p)->right));
+			p = &((*p)->right);
 		}
 	}
 	return (*p) != 0;
@@ -56,4 +56,4 @@ int main(int argc, char *argv[]) {
 	return 0;
 }
 
-//hay tarea 
+//hay tarea de ingresar punteros de array a una función y que te devuelva un árbol de abajo a arriba con las sumas de los elems continuos

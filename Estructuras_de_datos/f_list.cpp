@@ -1,4 +1,5 @@
 #include <iostream>
+#include <forward_list>
 using namespace std;
 
 struct Node
@@ -135,5 +136,8 @@ int main(){
     l.pop_front();
     l.print();
 
+    forward_list<int> l2;
+
+    return 0;
 
 }
