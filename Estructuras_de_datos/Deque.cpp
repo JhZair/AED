@@ -183,10 +183,10 @@ int main(){
     d.push_front(6);
     d.push_front(4);
     d.print();
-    // d.pop_back(); 
-    // d.pop_front();
-    // d.print();
-    d[10] = 5;
+    d.pop_back(); 
+    d.pop_front();
+    d.print();
+    d[3] = 5;
     d.print();
     
     return 0;
