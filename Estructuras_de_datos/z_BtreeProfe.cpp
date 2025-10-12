@@ -1,4 +1,5 @@
 #include <iostream>
+#include <queue>
 
 struct CNode
 {
@@ -22,6 +23,8 @@ public:
     int height1(CNode* n);
     void h1(CNode* n, int h, int& maxh);
     int height2(CNode* n);
+    void print_levels();
+    void levels(CNode* n);
 private:
     CNode* root;
     bool brep;
@@ -33,7 +36,7 @@ CBinTree::CBinTree()
 CBinTree::~CBinTree()
 {}
 
-bool CBinTree::find(int x, CNode**& p)
+bool CBinTree::find(int x, CNode**& p) // Por que en esta version no es mas rapido usar el array de nodos?
 {
     for ( p = &root; *p && (*p)->v != x;
          p = &( (*p)->nodes[(*p)->v < x] ) );
@@ -89,7 +92,7 @@ CNode** CBinTree::rep(CNode** p)
 void CBinTree::print()
 {
     inorder(root);
-    std::cout<<" h = "<<height1(root);
+    std::cout<<" h = "<<height2(root);
     std::cout<<"\n";
 }
 
@@ -104,24 +107,46 @@ void CBinTree::inorder(CNode* n)
 int CBinTree::height1(CNode* n)
 {
     int maxh = 0;
-    h1(root, 0, maxh);
+    h1(root, 1, maxh);
     return maxh;
 }
 
 void CBinTree::h1(CNode* n, int h, int& maxh)
 {
-    if ( !n ){
-        if(h > maxh)maxh = h;
-        return;
-    }
+    if ( !n ) return;
+    if ( h > maxh ) maxh = h;
     h1(n->nodes[0], h+1, maxh);
     h1(n->nodes[1], h+1, maxh);
 }
 
 int CBinTree::height2(CNode* n)
 {
-    
-    return 0;
+    if (!n) return 0;
+    int l = height2(n->nodes[0]),
+        r = height2(n->nodes[1]);
+    return std::max(l,r)+1;
+}
+
+void CBinTree::print_levels()
+{
+    std::cout<<"\n";
+    levels(root);
+    std::cout<<"\n";
+}
+
+void CBinTree::levels(CNode* n)
+{
+    if ( !n ) return;
+    std::queue<CNode*> q;
+    q.push(n);
+    while ( !q.empty() )
+    {
+        CNode* x = q.front();
+        std::cout<<x->v<<" ";
+        if ( x->nodes[0] ) q.push(x->nodes[0]);
+        if ( x->nodes[1] ) q.push(x->nodes[1]);
+        q.pop();
+    }
 }
 
 int main()
@@ -135,8 +160,12 @@ int main()
     t.ins(65); t.print();
     t.ins(80); t.print();
     t.ins(75); t.print();
+    t.print_levels();
     t.rem(20); t.print();
     t.rem(40); t.print();
     t.rem(65); t.print();
     t.rem(60); t.print();
+    
+    
 }
+
