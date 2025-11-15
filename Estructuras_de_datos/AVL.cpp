@@ -1,5 +1,6 @@
 #include <iostream>
 #include <queue>
+#include <stack>
 using namespace std;
 
 struct Node {
@@ -23,7 +24,14 @@ public:
 	bool remv(int x);
 	Node** reemp(Node** p);
 	void inorder(Node* p);
+	void print_levels();
+	void levels(Node* n);
 	void imprimir();
+	void LL(Node*& p);
+	void LR(Node*& p);
+	void RR(Node*& p);
+	void RL(Node*& p);
+	Node*& get_root(){return root;}
 };
 
 Btree::Btree(){
@@ -31,8 +39,7 @@ Btree::Btree(){
 	bool lado_reemp = 0;
 }
 Btree::~Btree(){
-	queue<int> q;
-	
+
 }
 	
 	bool Btree::ins(int x){
@@ -93,33 +100,66 @@ Btree::~Btree(){
 		cout<< endl;
 	}
 	
-	void case1(Node* p){ // linea recta hacia la izq
+	void Btree::print_levels()
+{
+    std::cout<<"\n";
+    levels(root);
+    std::cout<<"\n";
+}
+
+void Btree::levels(Node* n)
+{
+    if ( !n ) return;
+    std::queue<Node*> q;
+    q.push(n);
+    while ( !q.empty() )
+    {
+        Node* x = q.front();
+        std::cout<<x->v<<" ";
+        if ( x->left ) q.push(x->left);
+        if ( x->right ) q.push(x->right);
+        q.pop();
+    }
+}
+	void Btree::LL(Node*& p){ // linea recta hacia la izq
 		Node* q = (p->left)->right;
 		(p->left)->right = p;
-		p->right = q;
 		p = p->left;
+		(p->right)->left = q;
 	}
-	void case2(Node* p){ // linea recta hacia la derech
+	void Btree::RR(Node*& p){ // linea recta hacia la derecha
 		Node* q = (p->right)->left;
 		(p->right)->left = p;
-		p->left = q;
 		p = p->right;
+		(p->left)->right = q;
 	}
-	void case3(Node* p){ // zigzag hacia la izq
+	void Btree::LR(Node*& p){ // zigzag hacia la izq
+		Node* q = (p->left)->right;
+		(p->left)->right = q->left;
+		q->left = p->left;
+		p->left = q->right;
+		q->right = p;
+		p = q;
+	}
+	void Btree::RL(Node*& p){ // zigazag hacia la derecha
 		Node* q = (p->right)->left;
-		(p->right)->left = p;
-		p->left = q;
-		p = p->right;
+		(p->right)->left = q->right;
+		q->right = p->right;
+		p->right = q->left;
+		q->left = p;
+		p = q;
 	}
 	
-		
+	
 	int main(int argc, char *argv[]) {
 		Btree a;
-		a.ins(14); a.imprimir();
-		a.ins(13); a.imprimir();
-		a.ins(33); a.imprimir();
-		a.ins(7); a.imprimir();
-		a.ins(28); a.imprimir();
+		a.ins(14); a.print_levels();
+		a.ins(13); a.print_levels();
+		a.ins(33); a.print_levels();
+		a.ins(7); a.print_levels();
+		a.ins(28); a.print_levels();
+		a.LL(a.get_root());
+		a.print_levels();
 		
 		return 0;
 	}

@@ -31,7 +31,6 @@ Btree::Btree(){
 	bool lado_reemp = 0;
 }
 Btree::~Btree(){
-	queue<int> q;
 
 }
 

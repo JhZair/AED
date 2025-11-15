@@ -6,12 +6,6 @@
 
 using namespace std;
 
-const float VENTANA_ANCHO = 1800;
-const float VENTANA_ALTO = 900;
-const float RADIO_NODO = 22.0f;
-const float ESPACIO_Y = 150.0f; 
-const float ESPACIO_X = 100.0f;
-
 struct Node {
     int v;
     Node* left;
@@ -83,6 +77,12 @@ Node* CrearArbol(int* ini, int* fin) {
     }
     return nullptr;
 }
+
+const float VENTANA_ANCHO = 1800;
+const float VENTANA_ALTO = 900;
+const float RADIO_NODO = 22.0f;
+const float ESPACIO_Y = 150.0f; 
+const float ESPACIO_X = 100.0f;
 
 void posicionesRecursivo(Node* nodo, int level, int& index) {
     if (nodo == nullptr) {
@@ -201,3 +201,4 @@ int main() {
 
     return 0;
 }
+//g++ -o arboldibuj ../Arbol_graficado.cpp -lsfml-graphics -lsfml-window -lsfml-system
