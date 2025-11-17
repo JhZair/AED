@@ -18,7 +18,7 @@ struct Node {
     }
 };
 
-class Btree{
+class AVLtree{
     Node * root;
     bool lado_reemp;
 
@@ -66,7 +66,7 @@ class Btree{
         RR(p);
     }
 
-    void verificar_ruta(stack<Node**>& path) {
+    void verificar_ruta(stack<Node**>& path) { // Revisar
         while (!path.empty()) {
             Node** p_ptr = path.top();
             path.pop();
@@ -101,8 +101,8 @@ class Btree{
     }
 
 public:
-    Btree();
-    ~Btree();
+    AVLtree();
+    ~AVLtree();
     bool ins(int x);
     bool fnd(int x, Node**& p);
     bool remv(int x);
@@ -114,15 +114,15 @@ public:
     Node*& get_root(){return root;}
 };
 
-Btree::Btree(){
+AVLtree::AVLtree(){
     root = 0;
     lado_reemp = 0;
 }
-Btree::~Btree(){
+AVLtree::~AVLtree(){
     clear(root);
 }
     
-bool Btree::ins(int x){
+bool AVLtree::ins(int x){
     Node** p = &root;
     stack<Node**> path; 
 
@@ -139,7 +139,7 @@ bool Btree::ins(int x){
     return true;
 }
 
-bool Btree::remv(int x){
+bool AVLtree::remv(int x){
     Node** p = &root;
     stack<Node**> path; 
 
@@ -165,7 +165,7 @@ bool Btree::remv(int x){
     return true;
 }
 
-Node** Btree::reemp(Node** p, stack<Node**>& path) {
+Node** AVLtree::reemp(Node** p, stack<Node**>& path) {
     Node** q;
     if(lado_reemp){
         q = &((*p)->right);
@@ -187,7 +187,7 @@ Node** Btree::reemp(Node** p, stack<Node**>& path) {
     return q;
 }
 
-bool Btree::fnd(int x, Node**& p){
+bool AVLtree::fnd(int x, Node**& p){
     while(*p && (*p)->v != x){
         if((*p)->v > x)
             p = &((*p)->left);
@@ -197,24 +197,24 @@ bool Btree::fnd(int x, Node**& p){
     return *p;
 }
 
-void Btree::inorder(Node* p){
+void AVLtree::inorder(Node* p){
     if(!p) return;
     inorder(p->left);
     cout << p->v << ' ';
     inorder(p->right);
 }
-void Btree::imprimir(){
+void AVLtree::imprimir(){
     inorder(root);
     cout<< endl;
 }
     
-void Btree::print_levels() {
+void AVLtree::print_levels() {
     std::cout<<"\nImpresion por niveles: ";
     levels(root);
     std::cout<<"\n";
 }
 
-void Btree::levels(Node* n) {
+void AVLtree::levels(Node* n) {
     if ( !n ) return;
     std::queue<Node*> q;
     q.push(n);
@@ -229,7 +229,7 @@ void Btree::levels(Node* n) {
 }
     
 int main() {
-    Btree a;
+    AVLtree a;
     int opcion,valor;
     while (true) {
         cout << "1. Insertar 2. Eliminar 3. Imprimir 4. Salir" << endl;
