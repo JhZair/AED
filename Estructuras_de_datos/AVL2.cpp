@@ -66,7 +66,7 @@ class AVLtree{
         RR(p);
     }
 
-    void verificar_ruta(stack<Node**>& path) { // Revisar
+    void verificar_ruta(stack<Node**>& path) { 
         while (!path.empty()) {
             Node** p_ptr = path.top();
             path.pop();
@@ -104,7 +104,7 @@ public:
     AVLtree();
     ~AVLtree();
     bool ins(int x);
-    bool fnd(int x, Node**& p);
+    bool fnd(int x, Node**& p, stack<Node**>& path);
     bool remv(int x);
     Node** reemp(Node** p, stack<Node**>& path);
     void inorder(Node* p);
@@ -123,14 +123,11 @@ AVLtree::~AVLtree(){
 }
     
 bool AVLtree::ins(int x){
-    Node** p = &root;
+    Node** p;
     stack<Node**> path; 
 
-    while (*p) {
-        path.push(p); 
-        if ((*p)->v == x) return false;
-        
-        p = ((*p)->v > x) ? &((*p)->left) : &((*p)->right);
+    if (fnd(x, p, path)) {
+        return false;
     }
 
     *p = new Node(x);
@@ -140,15 +137,12 @@ bool AVLtree::ins(int x){
 }
 
 bool AVLtree::remv(int x){
-    Node** p = &root;
+    Node** p;
     stack<Node**> path; 
 
-    while (*p && (*p)->v != x) {
-        path.push(p);
-        p = ((*p)->v > x) ? &((*p)->left) : &((*p)->right);
+    if (!fnd(x, p, path)) {
+        return false; 
     }
-
-    if (!*p) return false; 
 
     if ((*p)->left && (*p)->right) {
         path.push(p); 
@@ -187,8 +181,10 @@ Node** AVLtree::reemp(Node** p, stack<Node**>& path) {
     return q;
 }
 
-bool AVLtree::fnd(int x, Node**& p){
+bool AVLtree::fnd(int x, Node**& p, stack<Node**>& path){
+    p = &root;
     while(*p && (*p)->v != x){
+        path.push(p);
         if((*p)->v > x)
             p = &((*p)->left);
         else
