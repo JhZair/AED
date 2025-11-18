@@ -33,8 +33,11 @@ class AVLtree{
     }
 
     int FB(Node* p) {
-        return height(p->left) - height(p->right);
+    if (p == nullptr) {
+        return 0;
     }
+    return height(p->left) - height(p->right);
+}
 
     void LL(Node*& p){ 
         Node* q = p->left;
