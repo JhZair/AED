@@ -26,7 +26,7 @@ class AVLtree{
         return p ? p->h : -1;
     }
 
-    void altura_actualizada(Node* p) {
+    void actualizar_altura(Node* p) {
         if (p) {
             p->h = 1 + std::max(height(p->left), height(p->right));
         }
@@ -36,7 +36,7 @@ class AVLtree{
     if (p == nullptr) {
         return 0;
     }
-    return height(p->left) - height(p->right);
+    return height(p->right) - height(p->left);
 }
 
     void LL(Node*& p){ 
@@ -44,8 +44,8 @@ class AVLtree{
         p->left = q->right;
         q->right = p;
         
-        altura_actualizada(p);
-        altura_actualizada(q);
+        actualizar_altura(p);
+        actualizar_altura(q);
         p = q;
     }
     
@@ -54,8 +54,8 @@ class AVLtree{
         p->right = q->left;
         q->left = p;
 
-        altura_actualizada(p);
-        altura_actualizada(q);
+        actualizar_altura(p);
+        actualizar_altura(q);
         p = q;
     }
     
@@ -75,18 +75,18 @@ class AVLtree{
             path.pop();
             Node* p = *p_ptr;
 
-            altura_actualizada(p);
+            actualizar_altura(p);
 
             int bf = FB(p);
 
-            if (bf > 1) { 
-                if (FB(p->left) >= 0) { 
+            if (bf < -1) { 
+                if (FB(p->left) <= 0) { 
                     LL(*p_ptr);
                 } else { 
                     LR(*p_ptr);
                 }
-            } else if (bf < -1) { 
-                if (FB(p->right) <= 0) { 
+            } else if (bf > 1) { 
+                if (FB(p->right) >= 0) { 
                     RR(*p_ptr);
                 } else { 
                     RL(*p_ptr);
@@ -143,10 +143,7 @@ bool AVLtree::remv(int x){
     Node** p;
     stack<Node**> path; 
 
-    if (!fnd(x, p, path)) {
-        return false; 
-    }
-
+    if (!fnd(x, p, path)) return false; 
     if ((*p)->left && (*p)->right) {
         path.push(p); 
         Node** q = reemp(p, path);

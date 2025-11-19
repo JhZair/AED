@@ -38,7 +38,7 @@ class AVLtree{
         return p ? p->h : -1;
     }
 
-    void altura_actualizada(Node* p) {
+    void actualizar_altura(Node* p) {
         if (p) {
             p->h = 1 + std::max(altura(p->left), altura(p->right));
         }
@@ -53,8 +53,8 @@ class AVLtree{
         p->left = q->right;
         q->right = p;
         
-        altura_actualizada(p);
-        altura_actualizada(q);
+        actualizar_altura(p);
+        actualizar_altura(q);
         p = q;
     }
     
@@ -63,8 +63,8 @@ class AVLtree{
         p->right = q->left;
         q->left = p;
 
-        altura_actualizada(p);
-        altura_actualizada(q);
+        actualizar_altura(p);
+        actualizar_altura(q);
         p = q;
     }
     
@@ -84,7 +84,7 @@ class AVLtree{
             path.pop();
             Node* p = *p_ptr;
 
-            altura_actualizada(p);
+            actualizar_altura(p);
 
             int bf = FB(p);
 
