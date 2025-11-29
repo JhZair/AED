@@ -4,11 +4,11 @@ using namespace std;
 
 // Estructura del Nodo para Listas Ortogonales
 struct Node {
-    int row;    // Coordenada Fila
-    int col;    // Coordenada Columna
-    int val;    // Valor
-    Node* right; // Puntero al siguiente nodo en la misma FILA (Horizontal)
-    Node* down;  // Puntero al siguiente nodo en la misma COLUMNA (Vertical)
+    int row;
+    int col;
+    int val;
+    Node* right;
+    Node* down;
 
     Node(int r, int c, int v) {
         row = r;
@@ -19,154 +19,198 @@ struct Node {
     }
 };
 
+class SparseMatrix; // Necesario para la clase de referencia
+class Objx;    // La clase Proxy/Referencia
+
+class Objx {
+private:
+    SparseMatrix* matrix; // Puntero a la matriz real (el contexto)
+    int ref_r;            // Fila capturada
+    int ref_c;            // Columna capturada
+public:
+    // Constructor: Captura la matriz y la coordenada (r, c)
+    Objx(SparseMatrix* m, int r, int c);
+
+    // Sobrecarga de ASIGNACIÓN: Permite m(r, c) = valor;
+    Objx& operator=(int v);
+
+    // Sobrecarga de CASTEO a int: Permite int a = m(r, c);
+    operator int();
+};
+
 class SparseMatrix {
 private:
-    Node** rows;    // Array de cabeceras de filas (búsqueda horizontal)
-    Node** cols;    // Array de cabeceras de columnas (búsqueda vertical)
-    int n_rows;     // Cantidad de filas
-    int n_cols;     // Cantidad de columnas
+    Node** rows;
+    Node** cols;
+    int n_rows;
+    int n_cols;
 
-    // BUSQUEDA HORIZONTAL (En una fila específica)
-    // Objetivo: Buscar en la fila 'r' el nodo con columna 'c'.
-    // Retorna: true si el nodo existe exactamente en (r,c).
-    // Param 'p': Se pasa por referencia.
-    //    - Si existe: p apunta al nodo encontrado.
-    //    - Si no existe: p apunta al puntero 'right' del nodo ANTERIOR (punto de inserción).
-    bool findH(int r, int c, Node**& p) {
-        // TODO:
-        // 1. Inicializar p con la dirección de rows[r].
-        // 2. Recorrer la lista enlazada horizontalmente usando (*p)->right.
-        // 3. Detenerse si llegamos al final o si la columna del nodo actual > c.
-        // 4. Retornar true si (*p) no es nulo y (*p)->col == c.
-        return false;
-    }
-
-    // BUSQUEDA VERTICAL (En una columna específica)
-    // Objetivo: Buscar en la columna 'c' el nodo con fila 'r'.
-    // Retorna: true si el nodo existe exactamente en (r,c).
-    // Param 'p': Igual que arriba, pero navegando verticalmente (down).
-    bool findV(int r, int c, Node**& p) {
-        // TODO:
-        // 1. Inicializar p con la dirección de cols[c].
-        // 2. Recorrer la lista enlazada verticalmente usando (*p)->down.
-        // 3. Detenerse si llegamos al final o si la fila del nodo actual > r.
-        // 4. Retornar true si (*p) no es nulo y (*p)->row == r.
-        return false;
-    }
+    // Métodos privados para el manejo de la estructura (necesarios para MatrixRef)
+    bool findH(int r, int c, Node**& p);
+    bool findV(int r, int c, Node**& p);
 
 public:
-    // Constructor: Debe inicializar los arrays de punteros
-    SparseMatrix(int r, int c) {
-        n_rows = r;
-        n_cols = c;
-        // TODO:
-        // 1. Reservar memoria para el array 'rows' de tamaño n_rows.
-        // 2. Reservar memoria para el array 'cols' de tamaño n_cols.
-        // 3. Inicializar todos los punteros de ambos arrays a nullptr.
-    }
+    SparseMatrix(int r, int c);
+    ~SparseMatrix();
 
-    // Destructor
-    ~SparseMatrix() {
-        // TODO: Liberar memoria.
-        // Estrategia: Recorrer el array 'rows' y borrar las listas horizontales.
-        // Luego borrar los arrays 'rows' y 'cols' en sí.
-    }
+    // Método principal de asignación y obtención (usado por MatrixRef)
+    void set(int r, int c, int val);
+    int get(int r, int c);
 
-    // Método set: El corazón de la estructura
-    void set(int r, int c, int val) {
-        if (r < 0 || r >= n_rows || c < 0 || c >= n_cols) return;
+    // OPERADOR DE INDEXACIÓN: Retorna el objeto proxy (MatrixRef)
+    Objx operator()(int r, int c);
 
-        Node** p_row;
-        Node** p_col;
-
-        // 1. Buscamos la posición en ambas direcciones
-        bool foundH = findH(r, c, p_row); // p_row apunta al lugar en la lista horizontal
-        bool foundV = findV(r, c, p_col); // p_col apunta al lugar en la lista vertical
-
-        // Nota: foundH y foundV deberían ser consistentes (ambos true o ambos false)
-
-        if (val != 0) {
-            if (foundH) {
-                // CASO: Actualizar valor existente
-                // TODO: Actualizar (*p_row)->val
-            } else {
-                // CASO: Insertar nuevo nodo
-                // TODO:
-                // 1. Crear newNode con (r, c, val).
-                // 2. Conectar horizontalmente: newNode->right = *p_row; *p_row = newNode;
-                // 3. Conectar verticalmente: newNode->down = *p_col; *p_col = newNode;
-            }
-        } else { // val == 0
-            if (foundH) {
-                // CASO: Eliminar nodo existente
-                // TODO:
-                // 1. Guardar puntero temporal al nodo a borrar (*p_row).
-                // 2. "Saltar" el nodo en la lista horizontal: *p_row = (*p_row)->right;
-                // 3. "Saltar" el nodo en la lista vertical: *p_col = (*p_col)->down;
-                // 4. delete temporal.
-            }
-            // Si val es 0 y no existe, no hacemos nada.
-        }
-    }
-
-    int get(int r, int c) {
-        if (r < 0 || r >= n_rows || c < 0 || c >= n_cols) return 0;
-
-        Node** p;
-        // Solo necesitamos buscar en una dirección para obtener el valor
-        if (findH(r, c, p)) {
-            // TODO: Retornar (*p)->val
-        }
-        return 0;
-    }
-
-    void print() {
-        cout << "--- Matriz Ortogonal (" << n_rows << "x" << n_cols << ") ---" << endl;
-        // TODO:
-        // Recorrer fila por fila (usando el array rows) e imprimir los nodos.
-        // Formato sugerido: Fila 0: (0,1):5 -> (0,3):8
-    }
+    void print();
 };
+
+bool SparseMatrix::findH(int r, int c, Node**& p) {
+    p = &rows[r];
+    while (*p && (*p)->col < c) {
+        p = &((*p)->right);
+    }
+    return *p && (*p)->col == c;
+}
+
+bool SparseMatrix::findV(int r, int c, Node**& p) {
+    p = &cols[c];
+    while (*p && (*p)->row < r) {
+        p = &((*p)->down);
+    }
+    return *p && (*p)->row == r;
+}
+
+SparseMatrix::SparseMatrix(int r, int c) {
+    n_rows = r;
+    n_cols = c;
+    rows = new Node*[n_rows];
+    cols = new Node*[n_cols];
+    for(int i = 0; i < n_rows; i++) rows[i] = nullptr;
+    for(int i = 0; i < n_cols; i++) cols[i] = nullptr;
+}
+
+SparseMatrix::~SparseMatrix() {
+    for(int i = 0; i < n_rows; i++) {
+        Node* current = rows[i];
+        while(current) {
+            Node* temp = current;
+            current = current->right;
+            delete temp;
+        }
+    }
+    delete[] rows;
+    delete[] cols;
+}
+
+void SparseMatrix::set(int r, int c, int val) {
+    if (r < 0 || r >= n_rows || c < 0 || c >= n_cols) return;
+
+    Node** p_row;
+    Node** p_col;
+
+    bool foundH = findH(r, c, p_row);
+    findV(r, c, p_col);
+
+    if (val != 0) {
+        if (foundH) {
+            (*p_row)->val = val;
+        } else {
+            Node* newNode = new Node(r, c, val);
+            
+            // Conexión Horizontal
+            newNode->right = *p_row; 
+            *p_row = newNode;
+            
+            // Conexión Vertical
+            newNode->down = *p_col; 
+            *p_col = newNode;
+        }
+    } else { // val == 0 -> ELIMINAR
+        if (foundH) {
+            Node* toDelete = *p_row;
+            *p_row = toDelete->right;
+            *p_col = toDelete->down;
+            delete toDelete;
+        }
+    }
+}
+
+int SparseMatrix::get(int r, int c) {
+    if (r < 0 || r >= n_rows || c < 0 || c >= n_cols) return 0;
+    Node** p;
+    if (findH(r, c, p)) {
+        return (*p)->val;
+    }
+    return 0;
+}
+
+Objx SparseMatrix::operator()(int r, int c) {
+    return Objx(this, r, c);
+}
+
+void SparseMatrix::print() {
+    cout << "--- Matriz Ortogonal (" << n_rows << "x" << n_cols << ") ---" << endl;
+    for (int i = 0; i < n_rows; ++i) {
+        cout << "Fila " << i << ": ";
+        Node* curr = rows[i];
+        if (!curr) cout << "(vacia)";
+        while (curr) {
+            cout << "(" << curr->row << "," << curr->col << "):" << curr->val << " -> ";
+            curr = curr->right;
+        }
+        cout << "NULL" << endl;
+    }
+}
+
+Objx::Objx(SparseMatrix* m, int r, int c) {
+    matrix = m;
+    ref_r = r;
+    ref_c = c;
+}
+
+Objx& Objx::operator=(int v) {
+    // La asignación se traduce en una llamada al método set de la matriz
+    matrix->set(ref_r, ref_c, v);
+    return *this; // Retornamos la referencia al objeto proxy para permitir encadenamiento
+}
+
+Objx::operator int() {
+    // La conversión se traduce en una llamada al método get de la matriz
+    return matrix->get(ref_r, ref_c);
+}
+
 
 int main() {
     cout << "Inicializando Matriz Ortogonal 4x4..." << endl;
     SparseMatrix m(4, 4);
 
-    // 1. Inserción Básica
-    cout << "\n1. Insertando (1, 1) = 10 y (2, 2) = 20" << endl;
-    m.set(1, 1, 10);
-    m.set(2, 2, 20);
+    // --- 1. PRUEBA DE ASIGNACIÓN (Set) ---
+    cout << "\n--- 1. Asignacion (Set) ---" << endl;
+    m(1, 1) = 10;     // Llama a operator() -> MatrixRef -> operator=(10) -> m.set(1, 1, 10)
+    m(2, 2) = 20;
+    m(1, 2) = 15;     // Inserción ordenada
+    m(0, 0) = 5;      // Inserción en cabeza
+
     m.print();
 
-    // 2. Inserción Cruzada (Misma fila, diferente columna y viceversa)
-    cout << "\n2. Insertando (1, 2) = 15 y (2, 1) = 25" << endl;
-    // Esto prueba si findH y findV manejan bien el orden de inserción
-    m.set(1, 2, 15); // Debe quedar a la derecha de (1,1)
-    m.set(2, 1, 25); // Debe quedar a la izquierda de (2,2)
-    m.print();
+    // --- 2. PRUEBA DE OBTENCIÓN (Get) ---
+    cout << "\n--- 2. Obtencion (Get) ---" << endl;
+    int a = m(1, 1);  // Llama a operator() -> MatrixRef -> operator int() -> m.get(1, 1)
+    int b = m(3, 3);  // Llama a m.get(3, 3), retorna 0
+    cout << "a = m(1, 1): " << a << endl; // Esperado: 10
+    cout << "b = m(3, 3): " << b << endl; // Esperado: 0
 
-    // 3. Actualización
-    cout << "\n3. Actualizando (1, 1) a 50" << endl;
-    m.set(1, 1, 50);
-    m.print();
+    // --- 3. PRUEBA DE ACTUALIZACIÓN ---
+    cout << "\n--- 3. Actualizacion ---" << endl;
+    m(1, 1) = 99;
+    cout << "m(1, 1) despues de actualizar: " << m(1, 1) << endl; // Esperado: 99
 
-    // 4. Caso Borde: Insertar en (0,0) (Cabeceras de fila 0 y col 0)
-    cout << "\n4. Insertando (0, 0) = 100" << endl;
-    m.set(0, 0, 100);
-    m.print();
+    // --- 4. PRUEBA DE ELIMINACIÓN (Set a 0) ---
+    cout << "\n--- 4. Eliminacion (Set a 0) ---" << endl;
+    m(1, 2) = 0; // Llama a m.set(1, 2, 0) y el nodo es eliminado
 
-    // 5. Eliminación (Set a 0)
-    cout << "\n5. Eliminando (1, 2) (Nodo intermedio horizontal)" << endl;
-    m.set(1, 2, 0);
     m.print();
-
-    cout << "\n6. Eliminando (2, 1) (Nodo cabeza de fila 2, intermedio de col 1)" << endl;
-    m.set(2, 1, 0);
-    m.print();
-
-    cout << "\n7. Get de valores:" << endl;
-    cout << "Get(1, 1) (Existe): " << m.get(1, 1) << endl;
-    cout << "Get(1, 2) (Borrado): " << m.get(1, 2) << endl;
+    
+    cout << "m(1, 2) (Borrado): " << m(1, 2) << endl; // Esperado: 0
 
     return 0;
 }
