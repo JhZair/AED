@@ -116,15 +116,13 @@ void SparseMatrix::set(int r, int c, int val) {
         } else {
             Node* newNode = new Node(r, c, val);
             
-            // Conexión Horizontal
             newNode->right = *p_row; 
             *p_row = newNode;
             
-            // Conexión Vertical
             newNode->down = *p_col; 
             *p_col = newNode;
         }
-    } else { // val == 0 -> ELIMINAR
+    } else { 
         if (foundH) {
             Node* toDelete = *p_row;
             *p_row = toDelete->right;
